@@ -11,9 +11,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  static List<Widget> _widgetOptions = <Widget>[
-    DiaryPage(),
-    RagPage(),
+
+  static final List<Widget> _widgetOptions = <Widget>[
+    const DiaryPage(),
+    const RagPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -25,24 +26,32 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _widgetOptions,
       ),
       bottomNavigationBar: BottomNavigationBar(
         elevation: 16,
+        backgroundColor: Colors.grey[800],
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.book),
+            icon: Icon(Icons.book, size: 30),
             label: 'Diary',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.search, size: 30),
             label: 'RAG',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.grey,
+        selectedLabelStyle:
+            const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        unselectedLabelStyle: const TextStyle(fontSize: 12),
         onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        showUnselectedLabels: true,
       ),
     );
   }

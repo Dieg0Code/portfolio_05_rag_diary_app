@@ -4,7 +4,9 @@ import 'package:rag_diary_app/presentation/bloc/diary_bloc.dart';
 import 'package:rag_diary_app/presentation/bloc/get_rag_response_event.dart';
 
 class RagQueryForm extends StatefulWidget {
-  const RagQueryForm({super.key});
+  final Function(String query) onQuerySubmitted;
+
+  const RagQueryForm({super.key, required this.onQuerySubmitted});
 
   @override
   State<RagQueryForm> createState() => _RagQueryFormState();
@@ -19,35 +21,55 @@ class _RagQueryFormState extends State<RagQueryForm> {
     super.dispose();
   }
 
+  void _submitQuery(String query) {
+    if (query.isNotEmpty) {
+      widget.onQuerySubmitted(query);
+      context.read<DiaryBloc>().add(GetRagResponseEvent(query: query));
+      _queryController.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Query RAG',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            TextField(
+        child: SearchAnchor(
+          builder: (BuildContext context, SearchController controller) {
+            return SearchBar(
               controller: _queryController,
-              decoration: const InputDecoration(
-                  labelText: 'Query', border: OutlineInputBorder()),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                context
-                    .read<DiaryBloc>()
-                    .add(GetRagResponseEvent(query: _queryController.text));
-                _queryController.clear();
-              },
-              child: const Text('Query'),
-            ),
-          ],
+              hintText: 'Enter your query',
+              onSubmitted: _submitQuery,
+              leading: const Icon(Icons.search),
+              trailing: [
+                if (_queryController.text.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _queryController.clear();
+                      setState(() {});
+                    },
+                  ),
+              ],
+              textInputAction: TextInputAction.search,
+            );
+          },
+          suggestionsBuilder:
+              (BuildContext context, SearchController controller) {
+            return List<ListTile>.generate(5, (int index) {
+              return ListTile(
+                title: Text('Sugerencia ${index + 1}'),
+                onTap: () {
+                  setState(() {
+                    _queryController.text = 'Sugerencia ${index + 1}';
+                    _submitQuery(_queryController.text);
+                  });
+                },
+              );
+            });
+          },
         ),
       ),
     );

@@ -17,3 +17,5 @@ class DiaryError extends DiaryState {
 
   DiaryError({required this.message});
 }
+
+class RagResponseCleared extends DiaryState {}

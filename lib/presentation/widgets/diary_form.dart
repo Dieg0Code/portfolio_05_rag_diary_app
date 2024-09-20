@@ -11,6 +11,7 @@ class DiaryForm extends StatefulWidget {
 }
 
 class _DiaryFormState extends State<DiaryForm> {
+  final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
 
@@ -21,53 +22,67 @@ class _DiaryFormState extends State<DiaryForm> {
     super.dispose();
   }
 
+  void _submitForm() {
+    if (_formKey.currentState?.validate() ?? false) {
+      context.read<DiaryBloc>().add(
+            CreateDiaryEvent(
+              title: _titleController.text,
+              content: _contentController.text,
+            ),
+          );
+      _titleController.clear();
+      _contentController.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Create new diary entry',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                border: OutlineInputBorder(),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Create new diary entry',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            TextField(
-              controller: _contentController,
-              decoration: const InputDecoration(
-                labelText: 'Content',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a title';
+                  }
+                  return null;
+                },
               ),
-              maxLines: 5,
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                context.read<DiaryBloc>().add(
-                      CreateDiaryEvent(
-                        title: _titleController.text,
-                        content: _contentController.text,
-                      ),
-                    );
-                _titleController.clear();
-                _contentController.clear();
-              },
-              child: const Text('Create'),
-            ),
-          ],
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _contentController,
+                decoration: const InputDecoration(
+                  labelText: 'Content',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 5,
+                textInputAction: TextInputAction.send,
+                onFieldSubmitted: (value) => _submitForm(),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter content';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );

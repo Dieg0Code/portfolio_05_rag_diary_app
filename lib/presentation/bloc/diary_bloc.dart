@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rag_diary_app/core/error/exceptions.dart';
 import 'package:rag_diary_app/domain/usecases/create_diary.dart';
 import 'package:rag_diary_app/domain/usecases/get_rag_response.dart';
+import 'package:rag_diary_app/presentation/bloc/clear_rag_response_event.dart';
 import 'package:rag_diary_app/presentation/bloc/create_diary_event.dart';
 import 'package:rag_diary_app/presentation/bloc/diary_event.dart';
 import 'package:rag_diary_app/presentation/bloc/diary_state.dart';
@@ -35,6 +36,10 @@ class DiaryBloc extends Bloc<DiaryEvent, DiaryState> {
       } catch (e) {
         emit(DiaryError(message: e.toString()));
       }
+    });
+
+    on<ClearRagResponseEvent>((event, emit) {
+      emit(DiaryInitial());
     });
   }
 }
